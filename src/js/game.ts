@@ -1,3 +1,6 @@
+// Importing css
+import "../index.css";
+// Typescript imports
 import { Food } from "./food";
 import { Snake } from "./snake";
 import { Direction } from "./util";
@@ -14,14 +17,13 @@ function main() {
         throw "Couldn't get rendering context!";
     }
 
-    const { width, height } = canvas.getBoundingClientRect();
     let options: GameOptions = {
-        width,
-        height,
+        width: canvas.width,
+        height: canvas.height,
         gridWidth: 10,
         gridHeight: 10,
-        tileWidth: width / 10,
-        tileHeight: height / 10
+        tileWidth: canvas.width / 10,
+        tileHeight: canvas.height / 10
     }
 
     const game = new SnakeGame(ctx, options);
@@ -33,7 +35,7 @@ function main() {
     setInterval(() => {
         game.update();
         game.render();
-    }, 600);
+    }, 500);
 }
 
 export type GameOptions = {
