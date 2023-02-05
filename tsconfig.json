@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "noImplicitAny": true,
+        "module": "CommonJS",
+        "target": "es6",
+        "allowJs": true,
+        "moduleResolution": "node"
+    },
+    "exclude": [
+		"node_modules"
+	],
+    "files": [
+        "./src/js/game.ts"
+    ]
+}

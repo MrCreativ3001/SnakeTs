@@ -1,2 +1,2 @@
 # SnakeJs
- A clone of the game snake in javascript and html
+ A simple clone of the game snake in typescript.

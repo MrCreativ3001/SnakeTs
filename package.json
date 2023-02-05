@@ -1,0 +1,31 @@
+{
+  "name": "snakejs",
+  "version": "1.0.0",
+  "description": "A simple clone of the game snake in typescript",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "dev": "webpack-dev-server --open --mode=development"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrCreativ3001/SnakeJs.git"
+  },
+  "author": "MrCreativ3001",
+  "license": "All Rights Reserved",
+  "bugs": {
+    "url": "https://github.com/MrCreativ3001/SnakeJs/issues"
+  },
+  "homepage": "https://github.com/MrCreativ3001/SnakeJs#readme",
+  "devDependencies": {
+    "@types/deep-equal": "^1.0.1",
+    "deep-equal": "^2.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^4.9.5",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1"
+  }
+}
