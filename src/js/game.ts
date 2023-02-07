@@ -12,6 +12,9 @@ window.onload = () => {
 
 function main() {
     const canvas = document.getElementById("game_canvas") as HTMLCanvasElement;
+    canvas.setAttribute("width", "1000");
+    canvas.setAttribute("height", "1000");
+
     const ctx = canvas.getContext("2d");
     if (ctx == null) {
         throw "Couldn't get rendering context!";
