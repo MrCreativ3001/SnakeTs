@@ -2,7 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-	entry: './src/js/game.ts',
+	entry: './src/game/game.ts',
 	output: {
 		path: path.resolve(__dirname, 'dist'),
 		filename: "bundle.js",
