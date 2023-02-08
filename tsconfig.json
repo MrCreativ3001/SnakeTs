@@ -11,6 +11,6 @@
 		"node_modules"
 	],
     "files": [
-        "./src/js/game.ts"
+        "src/game/game.ts"
     ]
 }
