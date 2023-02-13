@@ -10,11 +10,11 @@ export class Food {
      */
     constructor(options: GameOptions) {
         this.gameOptions = options;
-        this.generateNewPosition();
+        this.generateNewPosition(() => true);
     }
 
-    generateNewPosition() {
-        this.position = generateRandomPosition(this.gameOptions);
+    generateNewPosition(isValidPosition: (position: Position) => boolean) {
+        while(!isValidPosition(this.position = generateRandomPosition(this.gameOptions))) {}
     }
 
     render(ctx: CanvasRenderingContext2D) {

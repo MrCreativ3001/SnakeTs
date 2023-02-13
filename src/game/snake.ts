@@ -52,6 +52,19 @@ export class Snake {
         this.direction = direction;
     }
 
+    containsPart(position: Position): boolean {
+        if (this.position.isEqualTo(position)) {
+            return true;
+        }
+        for (let i = 0; i < this.parts.length; i++) {
+            const part = this.parts[i];
+            if(part.position.isEqualTo(position)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     render(ctx: CanvasRenderingContext2D) {
         this.renderSnakePart(ctx, this.position);
         this.parts.forEach(part => {

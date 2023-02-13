@@ -12,8 +12,8 @@ window.onload = () => {
 
 function main() {
     const canvas = document.getElementById("game_canvas") as HTMLCanvasElement;
-    canvas.setAttribute("width", "1000");
-    canvas.setAttribute("height", "1000");
+    canvas.setAttribute("width", "1500");
+    canvas.setAttribute("height", "1500");
 
     const ctx = canvas.getContext("2d");
     if (ctx == null) {
@@ -35,10 +35,7 @@ function main() {
         game.onKeyDown(event.key);
     });
 
-    setInterval(() => {
-        game.update();
-        game.render();
-    }, 500);
+    game.run();
 }
 
 export type GameOptions = {
@@ -57,29 +54,53 @@ class SnakeGame {
     ctx: CanvasRenderingContext2D
     options: GameOptions
     hasDied: boolean = false
+    score: number
     snake: Snake
     food: Food
 
     constructor(ctx: CanvasRenderingContext2D, options: GameOptions) {
         this.ctx = ctx;
         this.options = options;
+        this.reset();
+    }
+
+    private reset() {
+        this.score = 0;
         this.snake = new Snake(this.options);
         this.food = new Food(this.options);
     }
 
-    update() {
+    run() {
+        setTimeout(() => {
+            this.update();
+            this.render();
+            this.run();
+        },this.calculateUpdateTimeMs());
+    }
+    private calculateUpdateTimeMs(): number {
+        return Math.max(50, 500 - this.score / 100 * 20);
+    }
+
+    private update() {
         if (this.hasDied) {
             return;
         }
 
         const hasEatenFood = deepEqual(this.food.position, this.snake.position);
         if (hasEatenFood) {
-            this.food.generateNewPosition();
+            this.food.generateNewPosition((position) => !this.snake.containsPart(position));
+            this.score += 100;
         }
         this.hasDied = this.snake.move(hasEatenFood);
     }
 
     onKeyDown(key: string) {
+
+        if (this.hasDied) {
+            this.hasDied = false;
+            this.reset();
+        }
+
         // Up and down need to be switched because the ctx is normally flipped
         if (key == "ArrowUp") {
             this.snake.setNewDirection(Direction.Down);
@@ -92,7 +113,7 @@ class SnakeGame {
         }
     }
 
-    render() {
+    private render() {
         const ctx = this.ctx;
         const options = this.options;
 

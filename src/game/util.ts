@@ -1,3 +1,4 @@
+import deepEqual = require("deep-equal");
 import { GameOptions } from "./game";
 
 export class Position {
@@ -7,6 +8,10 @@ export class Position {
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
+    }
+
+    isEqualTo(other: Position): boolean {
+        return deepEqual(this, other);
     }
 }
 
@@ -33,13 +38,13 @@ export function oppositeDirection(direction: Direction): Direction {
 export function relativePosition(direction: Direction): Position {
     switch (direction) {
         case Direction.Up:
-            return { x: 0, y: 1 };
+            return new Position(0, 1);
         case Direction.Down:
-            return { x: 0, y: -1 };
+            return new Position(0, -1);
         case Direction.Left:
-            return { x: -1, y: 0 };
+            return new Position(-1, 0);
         case Direction.Right:
-            return { x: 1, y: 0 };
+            return new Position(1, 0);
     }
 }
 
@@ -47,10 +52,10 @@ export function relativePosition(direction: Direction): Position {
  * Generates a random position in the grid bounds.
  */
 export function generateRandomPosition(gameOptions: GameOptions): Position {
-    return {
-        x: generateRandomIntegerBetween(0, gameOptions.gridWidth),
-        y: generateRandomIntegerBetween(0, gameOptions.gridHeight)
-    }
+    return new Position(
+        generateRandomIntegerBetween(0, gameOptions.gridWidth),
+        generateRandomIntegerBetween(0, gameOptions.gridHeight)
+    )
 }
 function generateRandomIntegerBetween(min: number, max: number): number {
     const diff = max - min;
