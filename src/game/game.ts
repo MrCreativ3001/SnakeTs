@@ -110,6 +110,10 @@ class SnakeGame {
             this.score += 1;
         }
         this.hasDied = this.snake.move(hasEatenFood);
+
+        if (this.hasDied) {
+            this.reset();
+        }
     }
     private generateNewFood() {
         this.food.generateNewPosition((position) => !this.snake.containsPart(position));
@@ -119,7 +123,6 @@ class SnakeGame {
 
         if (this.hasDied) {
             this.hasDied = false;
-            this.reset();
         }
 
         if (key == "ArrowUp") {
@@ -148,8 +151,10 @@ class SnakeGame {
         if (this.hasDied) {
             ctx.fillStyle = "#000000";
             ctx.textAlign = "center";
-            ctx.font = "50px arial";
+            ctx.font = "100px arial";
             ctx.fillText("You DIED", options.width / 2, options.height / 2);
+            ctx.font = "50px arial";
+            ctx.fillText("Press any key to play again", options.width / 2, options.height / 2 + 50);
         }
     }
     private renderBackground() {
