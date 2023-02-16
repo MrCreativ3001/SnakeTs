@@ -4,14 +4,33 @@ import "../index.css";
 import { Food } from "./food";
 import { Snake } from "./snake";
 import { Direction } from "./util";
-import deepEqual = require("deep-equal");
+import { loadAssets } from "./assets";
 
 window.onload = () => {
     main();
 }
 
-function main() {
+async function main() {
     const canvas = document.getElementById("game_canvas") as HTMLCanvasElement;
+    const ctx = getContext(canvas);
+    const options = createGameOptions(canvas);
+
+    try {
+        await loadAssets();
+    } catch (e) {
+        throw `Error whilst loading images: ${e}`
+    }
+
+    const game = new SnakeGame(ctx, options);
+
+    window.addEventListener("keydown", event => {
+        game.onKeyDown(event.key);
+    });
+
+    game.run();
+}
+
+function getContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
     canvas.setAttribute("width", "1500");
     canvas.setAttribute("height", "1500");
 
@@ -19,23 +38,20 @@ function main() {
     if (ctx == null) {
         throw "Couldn't get rendering context!";
     }
+    // If true drawn images can appear blurred
+    ctx.imageSmoothingEnabled = false;
+    return ctx;
+}
 
-    let options: GameOptions = {
+function createGameOptions(canvas: HTMLCanvasElement): GameOptions {
+    return {
         width: canvas.width,
         height: canvas.height,
         gridWidth: 10,
         gridHeight: 10,
         tileWidth: canvas.width / 10,
         tileHeight: canvas.height / 10
-    }
-
-    const game = new SnakeGame(ctx, options);
-    
-    window.addEventListener("keydown", event => {
-        game.onKeyDown(event.key);
-    });
-
-    game.run();
+    };
 }
 
 export type GameOptions = {
@@ -61,13 +77,15 @@ class SnakeGame {
     constructor(ctx: CanvasRenderingContext2D, options: GameOptions) {
         this.ctx = ctx;
         this.options = options;
+        this.snake = new Snake(options);
+        this.food = new Food(options);
         this.reset();
     }
 
     private reset() {
         this.score = 0;
-        this.snake = new Snake(this.options);
-        this.food = new Food(this.options);
+        this.snake.reset();
+        this.generateNewFood();
     }
 
     run() {
@@ -75,7 +93,7 @@ class SnakeGame {
             this.update();
             this.render();
             this.run();
-        },this.calculateUpdateTimeMs());
+        }, this.calculateUpdateTimeMs());
     }
     private calculateUpdateTimeMs(): number {
         return Math.max(50, 500 - this.score / 100 * 20);
@@ -86,12 +104,15 @@ class SnakeGame {
             return;
         }
 
-        const hasEatenFood = deepEqual(this.food.position, this.snake.position);
+        const hasEatenFood = this.food.position.isEqualTo(this.snake.body[0].position);
         if (hasEatenFood) {
-            this.food.generateNewPosition((position) => !this.snake.containsPart(position));
+            this.generateNewFood();
             this.score += 100;
         }
         this.hasDied = this.snake.move(hasEatenFood);
+    }
+    private generateNewFood() {
+        this.food.generateNewPosition((position) => !this.snake.containsPart(position));
     }
 
     onKeyDown(key: string) {
@@ -101,14 +122,13 @@ class SnakeGame {
             this.reset();
         }
 
-        // Up and down need to be switched because the ctx is normally flipped
         if (key == "ArrowUp") {
-            this.snake.setNewDirection(Direction.Down);
-        } else if(key == "ArrowDown") {
             this.snake.setNewDirection(Direction.Up);
-        } else if(key == "ArrowLeft") {
+        } else if (key == "ArrowDown") {
+            this.snake.setNewDirection(Direction.Down);
+        } else if (key == "ArrowLeft") {
             this.snake.setNewDirection(Direction.Left);
-        } else if(key == "ArrowRight") {
+        } else if (key == "ArrowRight") {
             this.snake.setNewDirection(Direction.Right);
         }
     }
@@ -117,24 +137,34 @@ class SnakeGame {
         const ctx = this.ctx;
         const options = this.options;
 
-        this.renderGrid();
-        this.food.render(ctx);
+        this.renderBackground();
         this.snake.render(ctx);
+
+        const isSnakeEatingFood = this.food.position.isEqualTo(this.snake.body[0].position);
+        if (!isSnakeEatingFood) {
+            this.food.render(ctx);
+        }
 
         if (this.hasDied) {
             ctx.fillStyle = "#000000";
             ctx.textAlign = "center";
             ctx.font = "50px arial";
-            ctx.fillText("You DIED", options.width/2, options.height/2);
+            ctx.fillText("You DIED", options.width / 2, options.height / 2);
         }
     }
-    private renderGrid() {
+    private renderBackground() {
         const ctx = this.ctx;
         const options = this.options;
 
-        ctx.fillStyle = "#49be25";
         for (let x = 0; x < options.gridWidth; x++) {
             for (let y = 0; y < options.gridHeight; y++) {
+                let color = "#ffffff";
+                if ((x + y) % 2 == 0) {
+                    color = "#49be25";
+                } else {
+                    color = "#07ab46";
+                }
+                ctx.fillStyle = color;
                 ctx.fillRect(x * options.tileWidth, y * options.tileHeight, options.tileWidth, options.tileHeight);
             }
         }

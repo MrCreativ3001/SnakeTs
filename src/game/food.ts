@@ -1,3 +1,4 @@
+import { getAsset } from "./assets";
 import { GameOptions } from "./game";
 import { Position, generateRandomPosition } from "./util";
 
@@ -14,14 +15,14 @@ export class Food {
     }
 
     generateNewPosition(isValidPosition: (position: Position) => boolean) {
-        while(!isValidPosition(this.position = generateRandomPosition(this.gameOptions))) {}
+        while (!isValidPosition(this.position = generateRandomPosition(this.gameOptions))) { }
     }
 
     render(ctx: CanvasRenderingContext2D) {
         const options = this.gameOptions;
-        
-        ctx.fillStyle = "#ff1919";
-        ctx.fillRect(this.position.x * options.tileWidth, this.position.y * options.tileHeight, options.tileWidth, options.tileHeight);
+
+        const image = getAsset("food.png");
+        ctx.drawImage(image, this.position.x * options.tileWidth, this.position.y * options.tileHeight, options.tileWidth, options.tileHeight);
     }
-    
+
 }

@@ -15,7 +15,7 @@ module.exports = {
 			directory: path.join(__dirname, 'public'),
 		},
 		compress: true,
-		port: 8080,
+		port: 8080
 	},
 	module: {
 		rules: [
@@ -29,6 +29,10 @@ module.exports = {
 			{
 				test: /\.css$/i,
 				use: ["style-loader", "css-loader"],
+			},
+			{
+				test: /\.(png|svg|jpg|jpeg|gif)$/i,
+				type: 'asset/resource',
 			},
 		]
 	},

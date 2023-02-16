@@ -1,25 +1,11 @@
 import deepEqual = require("deep-equal");
 import { GameOptions } from "./game";
 
-export class Position {
-    x: number
-    y: number
-
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-
-    isEqualTo(other: Position): boolean {
-        return deepEqual(this, other);
-    }
-}
-
 export enum Direction {
-    Up = "Up",
-    Down = "Down",
-    Left = "Left",
-    Right = "Right",
+    Up = "up",
+    Down = "down",
+    Left = "left",
+    Right = "right",
 }
 
 export function oppositeDirection(direction: Direction): Direction {
@@ -35,16 +21,33 @@ export function oppositeDirection(direction: Direction): Direction {
     }
 }
 
+
+// Note that up and down are inverted because the canvas is inverted
 export function relativePosition(direction: Direction): Position {
     switch (direction) {
         case Direction.Up:
-            return new Position(0, 1);
-        case Direction.Down:
             return new Position(0, -1);
+        case Direction.Down:
+            return new Position(0, 1);
         case Direction.Left:
             return new Position(-1, 0);
         case Direction.Right:
             return new Position(1, 0);
+    }
+}
+
+
+export class Position {
+    x: number
+    y: number
+
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    isEqualTo(other: Position): boolean {
+        return deepEqual(this, other);
     }
 }
 

@@ -1,16 +1,30 @@
 import deepEqual = require("deep-equal");
 import { GameOptions } from "./game";
 import { Direction, oppositeDirection, Position, relativePosition } from "./util";
+import { getAsset } from "./assets";
 
 export class Snake {
     gameOptions: GameOptions
-    position: Position = new Position(0, 0)
-    parts: SnakePart[] = []
-    direction: Direction = Direction.Up
-    lastDirection: Direction = Direction.Up
+    body: SnakeBodyPart[]
+    nextDirection: Direction = Direction.Down
+    lastDirection: Direction = Direction.Down
 
     constructor(options: GameOptions) {
         this.gameOptions = options;
+        this.reset();
+    }
+
+    reset() {
+        this.body = [
+            {
+                position: new Position(0, 1),
+                direction: Direction.Down
+            },
+            {
+                position: new Position(0, 0),
+                direction: Direction.Down
+            }
+        ];
     }
 
     /**
@@ -18,30 +32,40 @@ export class Snake {
      * Returns if the snake died in this move.
      */
     move(grow: boolean): boolean {
-        let oldPosition = this.position;
 
-        const relPosition = relativePosition(this.direction);
-        const newPosition = new Position(oldPosition.x + relPosition.x, oldPosition.y + relPosition.y);
+        const head = this.body[0];
+
+        // Calculate new position
+        const relPosition = relativePosition(this.nextDirection);
+        const newPosition = new Position(head.position.x + relPosition.x, head.position.y + relPosition.y);
+
+        // Death checking
         if (newPosition.x < 0 || newPosition.x >= this.gameOptions.gridWidth) {
             return true;
         }
         if (newPosition.y < 0 || newPosition.y >= this.gameOptions.gridHeight) {
             return true;
         }
-        this.position = newPosition;
-        this.lastDirection = this.direction;
-        
-        for (let i = 0; i < this.parts.length; i++) {
-            const part = this.parts[i];
-            oldPosition = part.swapPosition(oldPosition);
-            if (deepEqual(oldPosition, newPosition)) {
+
+        // New Head part
+        let newPart = {
+            position: newPosition,
+            direction: this.nextDirection
+        }
+        // update direction
+        this.lastDirection = this.nextDirection;
+
+        for (let i = 0; i < this.body.length; i++) {
+            const part = this.body[i];
+            if (deepEqual(part.position, newPosition)) {
                 return true;
             }
+            this.body[i] = newPart;
+            newPart = part;
         }
-        
+
         if (grow) {
-            const newPart = new SnakePart(oldPosition);
-            this.parts.push(newPart);
+            this.body.push(newPart);
         }
         return false;
     }
@@ -49,16 +73,13 @@ export class Snake {
         if (direction == oppositeDirection(this.lastDirection)) {
             return;
         }
-        this.direction = direction;
+        this.nextDirection = direction;
     }
 
     containsPart(position: Position): boolean {
-        if (this.position.isEqualTo(position)) {
-            return true;
-        }
-        for (let i = 0; i < this.parts.length; i++) {
-            const part = this.parts[i];
-            if(part.position.isEqualTo(position)) {
+        for (let i = 0; i < this.body.length; i++) {
+            const part = this.body[i];
+            if (part.position.isEqualTo(position)) {
                 return true;
             }
         }
@@ -66,28 +87,29 @@ export class Snake {
     }
 
     render(ctx: CanvasRenderingContext2D) {
-        this.renderSnakePart(ctx, this.position);
-        this.parts.forEach(part => {
-            this.renderSnakePart(ctx, part.position);
-        })
+        const head = this.body[0];
+        this.renderSnakeSimple(ctx, `head_${head.direction}.png`, head.position);
+        const tail = this.body[this.body.length - 1];
+        const beforeTail = this.body[this.body.length - 2];
+        this.renderSnakeSimple(ctx, `tail_${oppositeDirection(beforeTail.direction)}.png`, tail.position);
+
+        for (let i = 1; i < this.body.length - 1; i++) {
+            const prevPart = this.body[i - 1];
+            const part = this.body[i];
+            this.renderSnakeBody(ctx, part, prevPart);
+        }
     }
-    private renderSnakePart(ctx: CanvasRenderingContext2D, position: Position) {
+    private renderSnakeSimple(ctx: CanvasRenderingContext2D, imagePath: string, position: Position) {
         const options = this.gameOptions;
 
-        ctx.fillStyle = "#0096FF";
-        ctx.fillRect(position.x * options.tileWidth, position.y * options.tileHeight, options.tileWidth, options.tileHeight);
+        const image = getAsset(imagePath);
+        ctx.drawImage(image, position.x * options.tileWidth, position.y * options.tileHeight, options.tileWidth, options.tileHeight);
+    }
+    private renderSnakeBody(ctx: CanvasRenderingContext2D, part: SnakeBodyPart, prevPart: SnakeBodyPart) {
+        this.renderSnakeSimple(ctx, `body_${prevPart.direction}_${oppositeDirection(part.direction)}.png`, part.position);
     }
 }
-export class SnakePart {
-    position: Position
-
-    constructor(position: Position) {
-        this.position = position;
-    }
-
-    swapPosition(newPosition: Position): Position {
-        const oldPosition = this.position;
-        this.position = newPosition;
-        return oldPosition;
-    }
+type SnakeBodyPart = {
+    position: Position,
+    direction: Direction
 }

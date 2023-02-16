@@ -1,0 +1,1 @@
+Assets can be found at [https://opengameart.org/content/snake-game-assets](https://opengameart.org/content/snake-game-assets).
