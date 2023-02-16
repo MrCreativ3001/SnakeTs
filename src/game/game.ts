@@ -96,7 +96,7 @@ class SnakeGame {
         }, this.calculateUpdateTimeMs());
     }
     private calculateUpdateTimeMs(): number {
-        return Math.max(50, 500 - this.score / 100 * 20);
+        return Math.max(200, 500 - (this.score * 15));
     }
 
     private update() {
@@ -107,7 +107,7 @@ class SnakeGame {
         const hasEatenFood = this.food.position.isEqualTo(this.snake.body[0].position);
         if (hasEatenFood) {
             this.generateNewFood();
-            this.score += 100;
+            this.score += 1;
         }
         this.hasDied = this.snake.move(hasEatenFood);
     }
